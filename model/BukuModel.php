@@ -3,64 +3,99 @@ include('Model.php');
 
 class BukuModel extends Model
 {
-    private $db;
-    private $table = 'm_buku'; // Nama tabel buku
+    protected $db;
+    protected $table = 'm_buku';
+    protected $driver;
 
     public function __construct()
     {
         include_once('../lib/Connection.php');
         $this->db = $db;
-        $this->db->set_charset('utf8');
+        $this->driver = $use_driver; // pastikan $use_driver diatur di Connection.php (mysql/sqlsrv)
     }
 
     public function insertData($data)
     {
-        // query untuk insert data buku
-        $query = $this->db->prepare("INSERT INTO {$this->table} (buku_kode, buku_nama, kategori_id, jumlah, deskripsi, gambar) 
-                                    VALUES (?, ?, ?, ?, ?, ?)");
-        // binding parameter
-        $query->bind_param('ssisss', $data['buku_kode'], $data['buku_nama'], $data['kategori_id'], $data['jumlah'], $data['deskripsi'], $data['gambar']);
-        // eksekusi query
-        $query->execute();
+        if ($this->driver == 'mysql') {
+            $query = $this->db->prepare("INSERT INTO {$this->table} (buku_kode, buku_nama, kategori_id, jumlah, deskripsi, gambar) 
+VALUES (?, ?, ?, ?, ?, ?)");
+            $query->bind_param('ssisss', $data['buku_kode'], $data['buku_nama'], $data['kategori_id'], $data['jumlah'], $data['deskripsi'], $data['gambar']);
+            $query->execute();
+        } else {
+            $sql = "INSERT INTO {$this->table} (buku_kode, buku_nama, kategori_id, jumlah, deskripsi, gambar) 
+                    VALUES (?, ?, ?, ?, ?, ?)";
+            $params = [
+                $data['buku_kode'],
+                $data['buku_nama'],
+                $data['kategori_id'],
+                $data['jumlah'],
+                $data['deskripsi'],
+                $data['gambar']
+            ];
+            sqlsrv_query($this->db, $sql, $params);
+        }
     }
 
     public function getData()
     {
-        // query untuk mengambil data dari tabel buku
-        return $this->db->query("SELECT * FROM {$this->table}");
+        if ($this->driver == 'mysql') {
+            return $this->db->query("SELECT * FROM {$this->table}");
+        } else {
+            $sql = "SELECT * FROM {$this->table}";
+            return sqlsrv_query($this->db, $sql);
+        }
     }
 
     public function getDataById($id)
     {
-        // query untuk mengambil data berdasarkan id buku
-        $query = $this->db->prepare("SELECT * FROM {$this->table} WHERE buku_id = ?");
-        // binding parameter
-        $query->bind_param('i', $id);
-        // eksekusi query
-        $query->execute();
-        // mengambil hasil query
-        return $query->get_result()->fetch_assoc();
+        if ($this->driver == 'mysql') {
+            $query = $this->db->prepare("SELECT * FROM {$this->table} WHERE buku_id = ?");
+            $query->bind_param('i', $id);
+            $query->execute();
+            return $query->get_result()->fetch_assoc();
+        } else {
+            $sql = "SELECT * FROM {$this->table} WHERE buku_id = ?";
+            $params = [$id];
+            $stmt = sqlsrv_query($this->db, $sql, $params);
+            return sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+        }
     }
 
     public function updateData($id, $data)
     {
-        // query untuk update data buku
-        $query = $this->db->prepare("UPDATE {$this->table} 
-                                    SET buku_kode = ?, buku_nama = ?, kategori_id = ?, jumlah = ?, deskripsi = ?, gambar = ? 
-                                    WHERE buku_id = ?");
-        // binding parameter
-        $query->bind_param('ssiissi', $data['buku_kode'], $data['buku_nama'], $data['kategori_id'], $data['jumlah'], $data['deskripsi'], $data['gambar'], $id);
-        // eksekusi query
-        $query->execute();
+        if ($this->driver == 'mysql') {
+            $query = $this->db->prepare("UPDATE {$this->table} 
+SET buku_kode = ?, buku_nama = ?, kategori_id = ?, jumlah = ?, deskripsi = ?, gambar = ? 
+WHERE buku_id = ?");
+            $query->bind_param('ssiissi', $data['buku_kode'], $data['buku_nama'], $data['kategori_id'], $data['jumlah'], $data['deskripsi'], $data['gambar'], $id);
+            $query->execute();
+        } else {
+            $sql = "UPDATE {$this->table} 
+                    SET buku_kode = ?, buku_nama = ?, kategori_id = ?, jumlah = ?, deskripsi = ?, gambar = ? 
+                    WHERE buku_id = ?";
+            $params = [
+                $data['buku_kode'],
+                $data['buku_nama'],
+                $data['kategori_id'],
+                $data['jumlah'],
+                $data['deskripsi'],
+                $data['gambar'],
+                $id
+            ];
+            sqlsrv_query($this->db, $sql, $params);
+        }
     }
 
     public function deleteData($id)
     {
-        // query untuk delete data buku
-        $query = $this->db->prepare("DELETE FROM {$this->table} WHERE buku_id = ?");
-        // binding parameter
-        $query->bind_param('i', $id);
-        // eksekusi query
-        $query->execute();
+        if ($this->driver == 'mysql') {
+            $query = $this->db->prepare("DELETE FROM {$this->table} WHERE buku_id = ?");
+            $query->bind_param('i', $id);
+            $query->execute();
+        } else {
+            $sql = "DELETE FROM {$this->table} WHERE buku_id = ?";
+            $params = [$id];
+            sqlsrv_query($this->db, $sql, $params);
+        }
     }
 }

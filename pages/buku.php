@@ -56,7 +56,7 @@ $kategori = getKategori();
 
 <!-- Modal Form -->
 <div class="modal fade" id="form-data" style="display: none;" aria-hidden="true">
-    <form action="action/bukuAction.php?act=save" method="post" id="form-tambah" enctype="multipart/form-data">
+    <form action="action/BukuAction.php?act=save" method="post" id="form-tambah" enctype="multipart/form-data">
         <div class="modal-dialog modal-md">
             <div class="modal-content">
                 <div class="modal-header">
@@ -110,7 +110,7 @@ $kategori = getKategori();
 <script>
     function tambahData() {
         $('#form-data').modal('show');
-        $('#form-tambah').attr('action', 'action/bukuAction.php?act=save');
+        $('#form-tambah').attr('action', 'action/BukuAction.php?act=save');
         $('#buku_kode').val('');
         $('#buku_nama').val('');
         $('#kategori_id').val(''); // Sesuai ID dari select
@@ -121,12 +121,12 @@ $kategori = getKategori();
 
     function editData(id) {
         $.ajax({
-            url: 'action/bukuAction.php?act=get&id=' + id,
+            url: 'action/BukuAction.php?act=get&id=' + id,
             method: 'post',
             success: function(response) {
                 var data = JSON.parse(response);
                 $('#form-data').modal('show');
-                $('#form-tambah').attr('action', 'action/bukuAction.php?act=update&id=' + id);
+                $('#form-tambah').attr('action', 'action/BukuAction.php?act=update&id=' + id);
                 $('#buku_kode').val(data.buku_kode);
                 $('#buku_nama').val(data.buku_nama);
                 $('#kategori_id').val(data.kategori_id).trigger('change');
@@ -141,7 +141,7 @@ $kategori = getKategori();
     function deleteData(id) {
         if (confirm('Apakah anda yakin?')) {
             $.ajax({
-                url: 'action/bukuAction.php?act=delete&id=' + id,
+                url: 'action/BukuAction.php?act=delete&id=' + id,
                 method: 'post',
                 success: function(response) {
                     var result = JSON.parse(response);
@@ -158,7 +158,7 @@ $kategori = getKategori();
     var tabelData;
     $(document).ready(function() {
         tabelData = $('#table-data').DataTable({
-            ajax: 'action/bukuAction.php?act=load',
+            ajax: 'action/BukuAction.php?act=load',
         });
         $('#form-tambah').validate({
             rules: {
